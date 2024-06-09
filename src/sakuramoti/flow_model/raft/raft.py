@@ -1,3 +1,37 @@
+# BSD 3-Clause License
+
+# Copyright (c) 2020, princeton-vl
+# All rights reserved.
+
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+
+# * Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Authors:
+# Zachary Teed, Jia Deng
+# Code from https://github.com/princeton-vl/RAFT
+
 from __future__ import annotations
 import torch
 import torch.nn as nn
@@ -12,6 +46,8 @@ from . import (
     AlternateCorrBlock,
 )
 from .utils import _coords_grid, _upflow8
+from types import SimpleNamespace
+from typing import ClassVar
 
 try:
     autocast = torch.cuda.amp.autocast
@@ -29,46 +65,55 @@ except:
 
 
 class RAFT(nn.Module):
-    def __init__(self, args):
+    default_conf: ClassVar[dict[str, any]] = {
+        "raft_model": "raft_base", # raft-small or raft-base
+        "dropout": 0,
+        "alternate_corr": False,
+        "pretrained":True,
+        "mixed_precision":False
+    }
+    
+    arch: ClassVar[dict[str, any]] = {
+        "raft_small": {
+            "hidden_dim":96,
+            "context_dim":64,
+            "encoder_feature_dim": 128,
+            "corr_levels":4,
+            "corr_radius":3  
+        },
+        "raft_base": {
+            "hidden_dim":128,
+            "context_dim": 128,
+            "encoder_feature_dim": 256,
+            "corr_levels": 4,
+            "corr_radius": 4
+        }
+    }
+        
+    def __init__(self, **conf_):
         super(RAFT, self).__init__()
-        self.args = args
-
-        if args.small:
-            self.hidden_dim = hdim = 96
-            self.context_dim = cdim = 64
-            args.corr_levels = 4
-            args.corr_radius = 3
-
-        else:
-            self.hidden_dim = hdim = 128
-            self.context_dim = cdim = 128
-            args.corr_levels = 4
-            args.corr_radius = 4
-
-        if "dropout" not in self.args:
-            self.args.dropout = 0
-
-        if "alternate_corr" not in self.args:
-            self.args.alternate_corr = False
-
+        self.args = args = SimpleNamespace(**{**self.default_conf, **conf_})
+        for k, v in self.arch[args.raft_model].items():
+            setattr(args, k, v)
+    
         # feature network, context network, and update block
-        if args.small:
+        if args.raft_model == "raft_small":
             self.fnet = SmallEncoder(
                 output_dim=128, norm_fn="instance", dropout=args.dropout
             )
             self.cnet = SmallEncoder(
-                output_dim=hdim + cdim, norm_fn="none", dropout=args.dropout
+                output_dim=args.hidden_dim + args.context_dim, norm_fn="none", dropout=args.dropout
             )
-            self.update_block = SmallUpdateBlock(self.args, hidden_dim=hdim)
+            self.update_block = SmallUpdateBlock(self.args, hidden_dim=args.hidden_dim)
 
         else:
             self.fnet = BasicEncoder(
                 output_dim=256, norm_fn="instance", dropout=args.dropout
             )
             self.cnet = BasicEncoder(
-                output_dim=hdim + cdim, norm_fn="batch", dropout=args.dropout
+                output_dim=args.hidden_dim + args.context_dim, norm_fn="batch", dropout=args.dropout
             )
-            self.update_block = BasicUpdateBlock(self.args, hidden_dim=hdim)
+            self.update_block = BasicUpdateBlock(self.args, hidden_dim=self.args.hidden_dim)
 
     def freeze_bn(self) -> None:
         for m in self.modules():
@@ -77,7 +122,7 @@ class RAFT(nn.Module):
 
     def initialize_flow(self, img: Tensor) -> tuple[Tensor, Tensor]:
         """Flow is represented as difference between two coordinate grids flow = coords1 - coords0"""
-        N, C, H, W = img.shape
+        N, _, H, W = img.shape
 
         coords0 = _coords_grid(N, H // 8, W // 8, device=img.device)
         coords1 = _coords_grid(N, H // 8, W // 8, device=img.device)
@@ -104,19 +149,12 @@ class RAFT(nn.Module):
         image2: Tensor,
         iters: int = 12,
         flow_init: int | None = None,
-        upsample: bool = True,
         test_mode: bool = False,
     ):
         """Estimate optical flow between pair of frames"""
 
-        image1 = 2 * (image1 / 255.0) - 1.0
-        image2 = 2 * (image2 / 255.0) - 1.0
-
-        image1 = image1.contiguous()
-        image2 = image2.contiguous()
-
-        hdim = self.hidden_dim
-        cdim = self.context_dim
+        hdim = self.args.hidden_dim
+        cdim = self.args.context_dim
 
         # run the feature network
         with autocast(enabled=self.args.mixed_precision):
@@ -142,7 +180,6 @@ class RAFT(nn.Module):
             coords1 = coords1 + flow_init
 
         flow_predictions = []
-        print(f"inp : {inp.shape} : inp : torch.Size([1, 128, 55, 128])")
         for _ in range(iters):
             coords1 = coords1.detach()
             corr = corr_fn(coords1)  # index correlation volume

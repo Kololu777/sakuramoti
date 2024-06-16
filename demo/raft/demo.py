@@ -98,11 +98,12 @@ def viz(img, flo):
     cv2.waitKey()
 
 
-def demo(args):
-    model = torch.nn.DataParallel(RAFT())
-    model.load_state_dict(torch.load(args.model))
+def demo():
+    model = RAFT()
+    #model = torch.nn.DataParallel(RAFT())
+    #model.load_state_dict(torch.load(args.model))
 
-    model = model.module
+    #model = model.module
     model.to(DEVICE)
     model.eval()
 
@@ -124,6 +125,7 @@ def demo(args):
 
 
 if __name__ == "__main__":
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="restore checkpoint")
     parser.add_argument("--path", help="dataset for evaluation")
@@ -137,5 +139,9 @@ if __name__ == "__main__":
         help="use efficent correlation implementation",
     )
     args = parser.parse_args()
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--path", help="dataset for evaluation")
+    args = parser.parse_args()
+    demo()
 
-    demo(args)

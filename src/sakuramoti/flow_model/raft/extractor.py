@@ -293,7 +293,7 @@ class SmallEncoder(nn.Module):
             is_list = False
             x = xs
 
-        x = self.conv1(xs)
+        x = self.conv1(x)
         x = self.norm1(x)
         x = self.relu1(x)
 

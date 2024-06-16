@@ -4,11 +4,29 @@ Sakuramoti(sakuramoti) will support various recent optical-flow and point-tracki
 
 ---
 
-# todo
-## model
-- [ ] RAFT
+# TODO List
+##  Code 
+### Model
+- [ ] WIP: RAFT
+  - [x] Done core model code 
+  - [ ] WIP: Demo code  
+  - [ ] WIP: Tool code
+  - [x] WIP: Test code
+  - [ ] Alternate Corr Block
+- [ ] Pips
 - [ ] TAPIR
-  
+
+### Loss & Metrics 
+- [ ] WIP: Sequence Loss
+  - [ ] Loss function & class code
+  - [ ] Test code 
+- [ ] WIP: epe
+  - [x] Metrics code 
+  - [ ] Test code
+### Type Guard
+- [ ] Tensor 
+
 ## etc
+- [ ] WIP: Ruff+mypy CI
 - [ ] document
 - [ ] enviroment tool

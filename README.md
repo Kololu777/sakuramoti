@@ -9,8 +9,8 @@ Sakuramoti(sakuramoti) will support various recent optical-flow and point-tracki
 ### Model
 - [ ] WIP: RAFT
   - [x] Done core model code 
-  - [ ] WIP: Demo code  
-  - [ ] WIP: Tool code
+  - [x] WIP: Demo code  
+  - [x] WIP: Tool code
   - [x] WIP: Test code
   - [ ] Alternate Corr Block
 - [ ] Pips

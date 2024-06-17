@@ -155,7 +155,7 @@ class RAFT(nn.Module):
         up_flow = up_flow.permute(0, 1, 4, 2, 5, 3)
         return up_flow.reshape(N, 2, 8 * H, 8 * W)
 
-    def forward(
+    def _run(
         self,
         image1: Tensor,
         image2: Tensor,
@@ -215,3 +215,23 @@ class RAFT(nn.Module):
             return coords1 - coords0, flow_up
 
         return flow_predictions
+    
+    def forward(
+        self,
+        image1: Tensor,
+        image2: Tensor,
+        iters: int = 12,
+        flow_init: int | None = None,
+    )->list[Tensor]:
+        """Estimate optical flow between pair of frames. (train)"""
+        return self._run(image1, image2, iters, flow_init, test_mode=False)
+
+    @torch.no_grad()
+    def pred(
+        self,
+        image1: Tensor,
+        image2: Tensor,
+        iters: int = 12,
+        flow_init: int | None = None
+    )->tuple(Tensor, Tensor):
+        return self._run(image1, image2, iters, flow_init, test_mode=True)

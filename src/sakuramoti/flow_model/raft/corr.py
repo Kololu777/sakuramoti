@@ -109,5 +109,9 @@ class CorrBlock:
         return corr / torch.sqrt(torch.tensor(dim).float())
 
 
-# TODO
+# WIP Code
+# Note: Currently, CorrBlock is used whether alternate_coor is True or False.
+# I want to make this code(https://github.com/princeton-vl/RAFT/tree/master/alt_cuda_corr) 
+# usable. However, since it's CUDA code,packaging becomes complicated. Therefore, I'm considering 
+# whether to separate it into another library.
 AlternateCorrBlock = CorrBlock

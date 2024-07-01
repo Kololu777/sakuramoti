@@ -104,7 +104,7 @@ class DeltaBlock(nn.Module):
             depth=12
         )
     
-    def forward(self, fhid, fcorr, flow):
+    def forward(self, fhid:Tensor, fcorr:Tensor, flow:Tensor)->Tensor:
         b, _, _ = flow.shape
         flow_sincos = get_3d_embedding(flow, 64, cat_coords=True)
         x = torch.cat([fhid, fcorr, flow_sincos], dim=2) #B, S, kitchecn_dim

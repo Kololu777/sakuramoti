@@ -18,10 +18,10 @@ def bilinear_sample2d(feature_map:Tensor, coordinates:Tensor)->Tensor:
     # x and y are each B, N
     # output is B, C, N
     B, C, H, W = list(feature_map.shape)
-    N = list(x.shape)[1]
-
     x = coordinates[:, :, 0]
     y = coordinates[:, :, 1]
+    N = x.shape[1]
+    
     x = x.float()
     y = y.float()
     H_f = torch.tensor(H, dtype=torch.float32)

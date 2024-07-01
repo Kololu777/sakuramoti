@@ -29,11 +29,11 @@ class CorrBlock:
         b, s, n, _= coords.shape
         out_pyramid = []
         for i in range(self.num_levels):
-            corrs = self.corr_pyramid[i]
+            corrs = self.corrs_pyramid[i]
             _, _, _, h, w = corrs.shape
             dx = torch.linspace(-r, r, 2 * r + 1)
             dy = torch.linspace(-r, r, 2 * r + 1)
-            delta = torch.stack(torch.meshgrid(dx, dy, indexing='ij'), dim=-1)
+            delta = torch.stack(torch.meshgrid(dx, dy, indexing='ij'), dim=-1).to(coords.device)
             
             centroid_lvl = coords.reshape(b * s * n, 1, 1, 2) / 2**i
             delta_lvl = delta.reshape(1, 2 * r + 1, 2 * r + 1, 2)
@@ -67,8 +67,8 @@ class CorrBlock:
             self.corrs_pyramid.append(corrs)
     
     def up_corr(self):
-        b, s, n, h, w = self.corrs_pyramid[0]
-        fcp = torch.zeros((b, s, n, h, w), dtype=self.corrs_pyramid.dtype, device=self.corrs_pyramid.device)
+        b, s, n, h, w = self.corrs_pyramid[0].shape
+        fcp = torch.zeros((b, s, n, h, w), dtype=self.corrs_pyramid[0].dtype, device=self.corrs_pyramid[0].device)
         for corr_level in range(self.num_levels):
             _fcp = self.corrs_pyramid[corr_level]
             _, _, _, _h, _w = _fcp.shape

@@ -41,9 +41,9 @@ class MLPMixer(nn.Module):
         *[nn.Sequential(
             PreNormResidual(hidden_dim, FeedForward(s, expansion_factor, dropout, chan_first)),
             PreNormResidual(hidden_dim, FeedForward(hidden_dim, expansion_factor, dropout, chan_last))
-        ) for _ in range(depth)]
+        ) for _ in range(depth)],
+        nn.LayerNorm(hidden_dim)
         )
-        self.norm = nn.LayerNorm(hidden_dim),
         self.head = nn.Linear(hidden_dim, output_dim)
         
     def forward(self, x:Tensor):

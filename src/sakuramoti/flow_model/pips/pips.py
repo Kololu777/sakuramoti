@@ -17,7 +17,7 @@ class Pips(nn.Module):
     
     arch:ClassVar[dict[str, any]] = {
         "base": {
-            "stride": 8,
+            "stride": 4,
             "hidden_dim": 256,
             "latent_dim": 128,
             "norm_fn": "instance",
@@ -27,6 +27,9 @@ class Pips(nn.Module):
             "s": 8
         }
     }
+    
+    __url = "https://huggingface.co/aharley/pips/resolve/main/model-000200000.pth"
+    __pth_template = "pips_offcial.pth"
     
     def __init__(self, **conf_):
         super(Pips, self).__init__()
@@ -55,6 +58,17 @@ class Pips(nn.Module):
             nn.Linear(self.args.latent_dim, 1),
         )
         
+        if self.args.pretrained is not None:
+            state_dict = torch.hub.load_state_dict_from_url(url=self.__url, file_name=self.__pth_template)
+            new_state_dict = {}
+            for k, v in state_dict["model_state_dict"].items():
+                if k in ["delta_block.to_delta.15.weight", "delta_block.to_delta.15.bias"]:
+                    new_state_dict[k.replace("delta_block.to_delta.15.", "delta_block.to_delta.head.")] = v
+                elif "delta_block.to_delta" in k:
+                    new_state_dict[k.replace("delta_block.to_delta.", "delta_block.to_delta.mlp_mixer.")] = v
+                else:
+                    new_state_dict[k] = v
+            self.load_state_dict(state_dict=new_state_dict)
     
     def init_pos_and_feat(self, 
                           xys:Tensor, 

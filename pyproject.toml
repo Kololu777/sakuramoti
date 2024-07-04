@@ -10,7 +10,6 @@ readme = "README.md"
 python = "3.9.16"
 torch = "^2.3.0"
 
-
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.8"
 mypy = "^1.10.0"
@@ -20,6 +19,10 @@ numpy = "^1.26.4"
 scipy = "^1.13.1"
 pytest = "^8.2.2"
 ipykernel = "^6.29.4"
+scikit-learn = "^1.5.0"
+einops = "^0.8.0"
+matplotlib = "3.5.2"
+tensorboardx = "^2.6.2.2"
 
 [build-system]
 requires = ["poetry-core"]

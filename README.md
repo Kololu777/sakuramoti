@@ -15,7 +15,7 @@ Sakuramoti(sakuramoti) will support various recent optical-flow and point-tracki
   - [ ] Alternate Corr Block
 - [ ] Pips
   - [x] Done Refactor
-  - [] WIP: Test code
+  - [ ] WIP: Test code
     - [x] Smoke
     - [x] Pretrained integrate
     - [ ] Evaluate Check

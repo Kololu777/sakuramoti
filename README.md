@@ -24,12 +24,17 @@ Sakuramoti(sakuramoti) will support various recent optical-flow and point-tracki
 - [ ] TAPIR
 
 ### Loss & Metrics 
-- [ ] WIP: Sequence Loss
-  - [ ] Loss function & class code
-  - [ ] Test code 
-- [ ] WIP: epe
+- [x] Sequence Loss
+  - [x] Loss function & class code
+  - [x] Test code
+- [x] BCE Loss
+-   
+- [x] epe
   - [x] Metrics code 
-  - [ ] Test code
+  - [x] Test code
+- [ ] WIP: TAP-Net Metric
+  - [ ] Convert numpy to pytorch.
+  - [ ] Test Code   
 ### Type Guard
 - [ ] Tensor 
 

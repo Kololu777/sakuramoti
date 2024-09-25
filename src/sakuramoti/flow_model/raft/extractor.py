@@ -33,6 +33,7 @@
 # Code from https://github.com/princeton-vl/RAFT
 
 from __future__ import annotations
+
 import torch
 import torch.nn as nn
 from torch import Tensor
@@ -42,7 +43,7 @@ class ResidualBlock(nn.Module):
     def __init__(
         self, in_planes: int, planes: int, norm_fn: str = "group", stride: int = 1
     ):
-        super(ResidualBlock, self).__init__()
+        super().__init__()
 
         self.conv1 = nn.Conv2d(
             in_planes, planes, kernel_size=3, padding=1, stride=stride
@@ -96,7 +97,7 @@ class BottleneckBlock(nn.Module):
     def __init__(
         self, in_planes: int, planes: int, norm_fn: str = "group", stride: int = 1
     ):
-        super(BottleneckBlock, self).__init__()
+        super().__init__()
 
         self.conv1 = nn.Conv2d(in_planes, planes // 4, kernel_size=1, padding=0)
         self.conv2 = nn.Conv2d(
@@ -157,7 +158,7 @@ class BasicEncoder(nn.Module):
     def __init__(
         self, output_dim: int = 128, norm_fn: str = "batch", dropout: float = 0.0
     ):
-        super(BasicEncoder, self).__init__()
+        super().__init__()
         self.norm_fn = norm_fn
 
         self.norm1: nn.Module = nn.Identity()
@@ -188,7 +189,7 @@ class BasicEncoder(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
-            elif isinstance(m, (nn.BatchNorm2d, nn.InstanceNorm2d, nn.GroupNorm)):
+            elif isinstance(m, (nn.BatchNorm2d | nn.InstanceNorm2d | nn.GroupNorm)):
                 if m.weight is not None:
                     nn.init.constant_(m.weight, 1)
                 if m.bias is not None:
@@ -237,7 +238,7 @@ class SmallEncoder(nn.Module):
     def __init__(
         self, output_dim: int = 128, norm_fn: str = "batch", dropout: float = 0.0
     ):
-        super(SmallEncoder, self).__init__()
+        super().__init__()
         self.norm_fn = norm_fn
 
         self.norm1: nn.Module = nn.Identity()
@@ -267,7 +268,7 @@ class SmallEncoder(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
-            elif isinstance(m, (nn.BatchNorm2d, nn.InstanceNorm2d, nn.GroupNorm)):
+            elif isinstance(m, (nn.BatchNorm2d | nn.InstanceNorm2d | nn.GroupNorm)):
                 if m.weight is not None:
                     nn.init.constant_(m.weight, 1)
                 if m.bias is not None:

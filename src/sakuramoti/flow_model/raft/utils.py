@@ -39,8 +39,7 @@ from torch import Tensor
 
 def _coords_grid(batch: int, ht: int, wd: int, device: torch.device) -> Tensor:
     meshgrid = torch.meshgrid(
-        torch.arange(ht, device=device), torch.arange(wd, device=device),
-        indexing='ij'
+        torch.arange(ht, device=device), torch.arange(wd, device=device), indexing="ij"
     )
     coords = torch.stack(meshgrid[::-1], dim=0).float()
     return coords[None].repeat(batch, 1, 1, 1)

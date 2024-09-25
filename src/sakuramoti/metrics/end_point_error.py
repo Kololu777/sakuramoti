@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import torch
 from torch import Tensor
 
@@ -25,11 +26,11 @@ def end_point_error(
         valid: The mask tensor. Shape of (B, ...)
         p: the order of norm.
         npx: List of thresholds to compute metrics for end-point-error.
-    
+
     Returns:
         dict[Tensor]: end point error.
     """
-    
+
     if valid is not None:
         assert (
             pred.shape[0] == valid.shape[0] and pred.shape[2:] == valid.shape[1:]

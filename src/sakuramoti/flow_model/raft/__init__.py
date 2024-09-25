@@ -1,12 +1,12 @@
-from .corr import bilinear_sampler, CorrBlock, AlternateCorrBlock
-from .extractor import ResidualBlock, BottleneckBlock, BasicEncoder, SmallEncoder
-from .update import (
-    FlowHead,
-    ConvGRU,
-    SepConvGRU,
-    SmallMotionEncoder,
-    BasicMotionEncoder,
-    SmallUpdateBlock,
-    BasicUpdateBlock,
-)
+from .corr import CorrBlock, AlternateCorrBlock, bilinear_sampler
 from .raft import RAFT
+from .update import (
+    ConvGRU,
+    FlowHead,
+    SepConvGRU,
+    BasicUpdateBlock,
+    SmallUpdateBlock,
+    BasicMotionEncoder,
+    SmallMotionEncoder,
+)
+from .extractor import BasicEncoder, SmallEncoder, ResidualBlock, BottleneckBlock

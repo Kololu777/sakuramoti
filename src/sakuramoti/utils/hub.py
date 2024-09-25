@@ -1,28 +1,31 @@
 from __future__ import annotations
+
 import os
-import zipfile
-import shutil
-import sys
-from torch.hub import get_dir, download_url_to_file
 import re
+import sys
+import shutil
+import zipfile
 from pathlib import Path
-from torch.serialization import MAP_LOCATION
+
 import torch
+from torch.hub import get_dir, download_url_to_file
+from torch.serialization import MAP_LOCATION
 
-
-HASH_REGEX = re.compile(r'-([a-f0-9]*)\.')
+HASH_REGEX = re.compile(r"-([a-f0-9]*)\.")
 TORCH_WEIGHT_SUFFIX = [".pt", ".pth"]
 
-def load_state_dict_from_zip_url(url,
-            target_file_name:str,
-            model_dir:str | None = None,
-            map_location: MAP_LOCATION = None,
-            progress:bool=True,
-            check_hash:bool = False,
-            file_name: str | None = None,
-            weights_only: bool = False
-            )->dict[str, any]:
-    r""" This function, which is similar to torch.hub.load_state_dict_from_url but allows loading 
+
+def load_state_dict_from_zip_url(
+    url,
+    target_file_name: str,
+    model_dir: str | None = None,
+    map_location: MAP_LOCATION = None,
+    progress: bool = True,
+    check_hash: bool = False,
+    file_name: str | None = None,
+    weights_only: bool = False,
+) -> dict[str, any]:
+    r"""This function, which is similar to torch.hub.load_state_dict_from_url but allows loading
     a specific model from multiple files within a ZIP archive.
 
     Args:
@@ -41,11 +44,11 @@ def load_state_dict_from_zip_url(url,
         weights_only: If True, only weights will be loaded and no complex pickled objects.
             Recommended for untrusted sources. See :func:`~torch.load` for more details.
     """
-    
+
     if model_dir is None:
         hub_dir = get_dir()
-        model_dir = os.path.join(hub_dir, 'checkpoints')
-    
+        model_dir = os.path.join(hub_dir, "checkpoints")
+
     filename = os.path.basename(url)
     if file_name is not None:
         filename = file_name
@@ -59,17 +62,20 @@ def load_state_dict_from_zip_url(url,
             hash_prefix = r.group(1) if r else None
         download_url_to_file(url, zip_file, hash_prefix, progress=progress)
 
-        #mv
+        # mv
         with zipfile.ZipFile(file=zip_file) as f:
-            #extract
+            # extract
             f.extractall(model_dir)
             infolist = f.infolist()
-        
+
         for info in infolist:
             file_path = os.path.join(model_dir, info.filename)
             filename_in_zip_file = os.path.basename(file_path)
             mv_filename = os.path.join(model_dir, filename_in_zip_file)
-            if not os.path.exists(os.path.join(mv_filename)) and Path(filename_in_zip_file).suffix in TORCH_WEIGHT_SUFFIX:
+            if (
+                not os.path.exists(os.path.join(mv_filename))
+                and Path(filename_in_zip_file).suffix in TORCH_WEIGHT_SUFFIX
+            ):
                 sys.stderr.write(f'mv: "{file_path}" to {mv_filename}\n')
                 shutil.move(file_path, model_dir)
         os.remove(zip_file)

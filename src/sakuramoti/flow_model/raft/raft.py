@@ -33,22 +33,26 @@
 # Code from https://github.com/princeton-vl/RAFT
 
 from __future__ import annotations
+
+from types import SimpleNamespace
+from typing import ClassVar
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
+
 from . import (
-    SmallEncoder,
-    BasicEncoder,
-    SmallUpdateBlock,
-    BasicUpdateBlock,
     CorrBlock,
+    BasicEncoder,
+    SmallEncoder,
+    BasicUpdateBlock,
+    SmallUpdateBlock,
     AlternateCorrBlock,
 )
-from .utils import _coords_grid, _upflow8
-from types import SimpleNamespace
-from typing import ClassVar
-from ...utils import load_state_dict_from_zip_url 
+from .utils import _upflow8, _coords_grid
+from ...utils import load_state_dict_from_zip_url
+
 try:
     autocast = torch.cuda.amp.autocast
 except:
@@ -66,48 +70,49 @@ except:
 
 class RAFT(nn.Module):
     default_conf: ClassVar[dict[str, any]] = {
-        "raft_model": "base", # small or base
+        "raft_model": "base",  # small or base
         "dropout": 0.0,
         "alternate_corr": False,
-        "pretrained":"sintel", #chairs, sintel, things, kitti, small, None.
-        "mixed_precision":False
+        "pretrained": "sintel",  # chairs, sintel, things, kitti, small, None.
+        "mixed_precision": False,
     }
-    
+
     arch: ClassVar[dict[str, any]] = {
         "small": {
-            "hidden_dim":96,
-            "context_dim":64,
+            "hidden_dim": 96,
+            "context_dim": 64,
             "encoder_feature_dim": 128,
-            "corr_levels":4,
-            "corr_radius":3  
+            "corr_levels": 4,
+            "corr_radius": 3,
         },
         "base": {
-            "hidden_dim":128,
+            "hidden_dim": 128,
             "context_dim": 128,
             "encoder_feature_dim": 256,
             "corr_levels": 4,
-            "corr_radius": 4
-        }
+            "corr_radius": 4,
+        },
     }
-    
+
     # https://github.com/princeton-vl/RAFT/blob/master/download_models.sh
     __url = "https://dl.dropboxusercontent.com/s/4j4z58wuv8o0mfz/models.zip"
     __pth_template = "raft-{}.pth"
-    
-    
+
     def __init__(self, **conf_):
         super(RAFT, self).__init__()
         self.args = args = SimpleNamespace(**{**self.default_conf, **conf_})
         for k, v in self.arch[args.raft_model].items():
             setattr(args, k, v)
-    
+
         # feature network, context network, and update block
         if args.raft_model == "small":
             self.fnet = SmallEncoder(
                 output_dim=128, norm_fn="instance", dropout=args.dropout
             )
             self.cnet = SmallEncoder(
-                output_dim=args.hidden_dim + args.context_dim, norm_fn="none", dropout=args.dropout
+                output_dim=args.hidden_dim + args.context_dim,
+                norm_fn="none",
+                dropout=args.dropout,
             )
             self.update_block = SmallUpdateBlock(self.args, hidden_dim=args.hidden_dim)
 
@@ -116,17 +121,24 @@ class RAFT(nn.Module):
                 output_dim=256, norm_fn="instance", dropout=args.dropout
             )
             self.cnet = BasicEncoder(
-                output_dim=args.hidden_dim + args.context_dim, norm_fn="batch", dropout=args.dropout
+                output_dim=args.hidden_dim + args.context_dim,
+                norm_fn="batch",
+                dropout=args.dropout,
             )
-            self.update_block = BasicUpdateBlock(self.args, hidden_dim=self.args.hidden_dim)
+            self.update_block = BasicUpdateBlock(
+                self.args, hidden_dim=self.args.hidden_dim
+            )
 
         if self.args.pretrained is not None:
-            state_dict = load_state_dict_from_zip_url(url=self.__url, target_file_name=self.__pth_template.format(self.args.pretrained))
+            state_dict = load_state_dict_from_zip_url(
+                url=self.__url,
+                target_file_name=self.__pth_template.format(self.args.pretrained),
+            )
             new_state_dict = {}
             for k, v in state_dict.items():
                 new_state_dict[k.replace("module.", "")] = v
             self.load_state_dict(state_dict=new_state_dict)
-            
+
     def freeze_bn(self) -> None:
         for m in self.modules():
             if isinstance(m, nn.BatchNorm2d):
@@ -215,14 +227,14 @@ class RAFT(nn.Module):
             return coords1 - coords0, flow_up
 
         return flow_predictions
-    
+
     def forward(
         self,
         image1: Tensor,
         image2: Tensor,
         iters: int = 12,
         flow_init: int | None = None,
-    )->list[Tensor]:
+    ) -> list[Tensor]:
         """Estimate optical flow between pair of frames. (train)"""
         return self._run(image1, image2, iters, flow_init, test_mode=False)
 
@@ -232,6 +244,6 @@ class RAFT(nn.Module):
         image1: Tensor,
         image2: Tensor,
         iters: int = 12,
-        flow_init: int | None = None
-    )->tuple(Tensor, Tensor):
+        flow_init: int | None = None,
+    ) -> tuple(Tensor, Tensor):
         return self._run(image1, image2, iters, flow_init, test_mode=True)

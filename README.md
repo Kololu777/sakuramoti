@@ -5,11 +5,11 @@ Sakuramoti(sakuramoti) will support various recent optical-flow and point-tracki
 ---
 
 # TODO List
-##  Code 
+##  Code
 ### Model
 - [ ] WIP: RAFT
-  - [x] Done core model code 
-  - [x] WIP: Demo code  
+  - [x] Done core model code
+  - [x] WIP: Demo code
   - [x] WIP: Tool code
   - [x] WIP: Test code
   - [ ] Alternate Corr Block
@@ -19,24 +19,24 @@ Sakuramoti(sakuramoti) will support various recent optical-flow and point-tracki
     - [x] Smoke
     - [x] Pretrained integrate
     - [ ] Evaluate Check
-      - I Confirmed slight differences between the original implementation and the visualization results. so, currently recnfirm cause.   
+      - I Confirmed slight differences between the original implementation and the visualization results. so, currently recnfirm cause.
   - [x] WIP: Pretrain integrate
 - [ ] TAPIR
 
-### Loss & Metrics 
+### Loss & Metrics
 - [x] Sequence Loss
   - [x] Loss function & class code
   - [x] Test code
 - [x] BCE Loss
--   
+-
 - [x] epe
-  - [x] Metrics code 
+  - [x] Metrics code
   - [x] Test code
 - [ ] WIP: TAP-Net Metric
   - [ ] Convert numpy to pytorch.
-  - [ ] Test Code   
+  - [ ] Test Code
 ### Type Guard
-- [ ] Tensor 
+- [ ] Tensor
 
 ## etc
 - [ ] WIP: Ruff+mypy CI

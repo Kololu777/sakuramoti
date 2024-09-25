@@ -41,17 +41,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
-
-from . import (
-    CorrBlock,
-    BasicEncoder,
-    SmallEncoder,
+from sakuramoti.utils.hub import load_state_dict_from_zip_url
+from sakuramoti.flow_model.raft.corr import CorrBlock, AlternateCorrBlock
+from sakuramoti.flow_model.raft.utils import _upflow8, _coords_grid
+from sakuramoti.flow_model.raft.update import (
     BasicUpdateBlock,
     SmallUpdateBlock,
-    AlternateCorrBlock,
 )
-from .utils import _upflow8, _coords_grid
-from ...utils import load_state_dict_from_zip_url
+from sakuramoti.flow_model.raft.extractor import BasicEncoder, SmallEncoder
 
 try:
     autocast = torch.cuda.amp.autocast

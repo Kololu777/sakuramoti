@@ -1,5 +1,5 @@
 [project]
-name = "sakuramoti"
+name = "Sakuramoti"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -7,9 +7,10 @@ requires-python = ">=3.10"
 dependencies = [
     "torch>=2.4.0",
     "numpy>=1.26.4",
+    "sakuramoti",
 ]
 
-[build-system]
+[build-systzzem]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
@@ -107,3 +108,6 @@ dev-dependencies = [
     "tensorflow>=2.17.0",
     "tensorflow-datasets>=4.9.6",
 ]
+
+[tool.uv.sources]
+sakuramoti = { workspace = true }

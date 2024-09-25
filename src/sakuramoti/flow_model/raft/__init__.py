@@ -1,6 +1,6 @@
-from .corr import CorrBlock, AlternateCorrBlock, bilinear_sampler
-from .raft import RAFT
-from .update import (
+from sakuramoti.flow_model.raft.corr import CorrBlock, AlternateCorrBlock, bilinear_sampler
+from sakuramoti.flow_model.raft.raft import RAFT
+from sakuramoti.flow_model.raft.update import (
     ConvGRU,
     FlowHead,
     SepConvGRU,
@@ -9,4 +9,4 @@ from .update import (
     BasicMotionEncoder,
     SmallMotionEncoder,
 )
-from .extractor import BasicEncoder, SmallEncoder, ResidualBlock, BottleneckBlock
+from sakuramoti.flow_model.raft.extractor import BasicEncoder, SmallEncoder, ResidualBlock, BottleneckBlock

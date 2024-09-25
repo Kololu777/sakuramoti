@@ -37,9 +37,7 @@ import torch.nn.functional as F
 from torch import Tensor
 
 
-def bilinear_sampler(
-    img: Tensor, coords: Tensor, mode: str = "bilinear", is_mask: bool = False
-):
+def bilinear_sampler(img: Tensor, coords: Tensor, mode: str = "bilinear", is_mask: bool = False):
     """Wrapper for grid_sample, uses pixel coordinates"""
     H, W = img.shape[-2:]
     xgrid, ygrid = coords.split([1, 1], dim=-1)
@@ -57,9 +55,7 @@ def bilinear_sampler(
 
 
 class CorrBlock:
-    def __init__(
-        self, fmap1: Tensor, fmap2: Tensor, num_levels: int = 4, radius: int = 4
-    ):
+    def __init__(self, fmap1: Tensor, fmap2: Tensor, num_levels: int = 4, radius: int = 4):
         self.num_levels = num_levels
         self.radius = radius
         self.corr_pyramid = []
@@ -85,7 +81,7 @@ class CorrBlock:
             corr = self.corr_pyramid[i]
             dx = torch.linspace(-r, r, 2 * r + 1, device=coords.device)
             dy = torch.linspace(-r, r, 2 * r + 1, device=coords.device)
-            delta = torch.stack(torch.meshgrid(dy, dx, indexing='ij'), dim=-1)
+            delta = torch.stack(torch.meshgrid(dy, dx, indexing="ij"), dim=-1)
 
             centroid_lvl = coords.reshape(batch * h1 * w1, 1, 1, 2) / 2**i
             delta_lvl = delta.view(1, 2 * r + 1, 2 * r + 1, 2)
@@ -111,7 +107,7 @@ class CorrBlock:
 
 # WIP Code
 # Note: Currently, CorrBlock is used whether alternate_coor is True or False.
-# I want to make this code(https://github.com/princeton-vl/RAFT/tree/master/alt_cuda_corr) 
-# usable. However, since it's CUDA code,packaging becomes complicated. Therefore, I'm considering 
+# I want to make this code(https://github.com/princeton-vl/RAFT/tree/master/alt_cuda_corr)
+# usable. However, since it's CUDA code,packaging becomes complicated. Therefore, I'm considering
 # whether to separate it into another library.
 AlternateCorrBlock = CorrBlock

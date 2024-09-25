@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import torch
 from torch import Tensor
 
@@ -15,7 +16,7 @@ def end_point_error(
     target: Tensor,
     valid: Tensor | None = None,
     p: int = 2,
-    npx: list[int] = [1, 3, 5],
+    npx: list[int] | None = None,
 ) -> dict[Tensor]:
     """compute end point error.
 
@@ -25,11 +26,11 @@ def end_point_error(
         valid: The mask tensor. Shape of (B, ...)
         p: the order of norm.
         npx: List of thresholds to compute metrics for end-point-error.
-    
+
     Returns:
         dict[Tensor]: end point error.
     """
-    
+
     if valid is not None:
         assert (
             pred.shape[0] == valid.shape[0] and pred.shape[2:] == valid.shape[1:]
@@ -37,6 +38,9 @@ def end_point_error(
     epe = torch.norm(pred - target, p=p, dim=1)
     if valid is not None:
         epe[valid]
+
+    if npx is None:
+        npx = [1, 3, 5]
 
     metrics = {}
     metrics["epe"] = epe.mean().item()

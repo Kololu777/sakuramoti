@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import torch
 from torch import Tensor
 
@@ -23,6 +24,4 @@ def maksed_mean(
 
     else:
         mean_mode_error_message = {"mean", "reduce_masked_mean"}
-        raise ValueError(
-            f"The `mean_mode` must be one of {mean_mode_error_message}, but got {mean_mode}"
-        )
+        raise ValueError(f"The `mean_mode` must be one of {mean_mode_error_message}, but got {mean_mode}")

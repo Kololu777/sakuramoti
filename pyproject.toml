@@ -2,27 +2,85 @@
 name = "sakuramoti"
 version = "0.1.0"
 description = "Add your description here"
-authors = [
-    { name = "Kololu777", email = "kosiynon31kos@gmail.com" }
-]
+readme = "README.md"
+requires-python = ">=3.10"
 dependencies = [
     "torch>=2.4.0",
+    "numpy>=1.26.4",
 ]
-readme = "README.md"
-requires-python = ">= 3.10"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.rye]
-managed = true
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sakuramoti"]
+
+[tool.ruff]
+# extend-include = ["*.ipynb", ".ipynb_checkpoints"]
+exclude = ["*.ipynb", ".ipynb_checkpoints"]
+target-version = "py312"
+line-length = 120
+indent-width = 4
+output-format = "grouped"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "W191",  # indentation contains tabs
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+length-sort = true
+known-third-party = ["sakuramoti", "torch"]
+
+[tool.ruff.lint.flake8-annotations]
+mypy-init-return = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = [
+    "classmethod",
+    "pydantic.validator",
+    "pydantic.root_validator",
+    "pydantic.field_validator",
+    "pydantic.model_validator",
+]
+
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.uv]
 dev-dependencies = [
-    "ruff>=0.5.5",
-    "mypy>=1.11.1",
+    "mypy>=1.11.2",
     "opencv-python>=4.10.0.84",
     "pillow>=10.4.0",
-    "numpy>=2.0.1",
     "pytest>=8.3.2",
     "scikit-learn>=1.5.1",
     "ipykernel>=6.29.5",
@@ -41,10 +99,11 @@ dev-dependencies = [
     "absl-py>=2.1.0",
     "ffmpeg>=1.4",
     "ffmpeg-python>=0.2.0",
+    "jax>=0.4.31",
+    "dm-haiku>=0.0.12",
+    "tree>=0.2.4",
+    "dm-tree>=0.1.8",
+    "einshape>=1.0",
+    "tensorflow>=2.17.0",
+    "tensorflow-datasets>=4.9.6",
 ]
-
-[tool.hatch.metadata]
-allow-direct-references = true
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/sakuramoti"]

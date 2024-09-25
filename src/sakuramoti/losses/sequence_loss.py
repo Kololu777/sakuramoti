@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 import torch
 import torch.nn as nn
 from torch import Tensor
+
 from .utils import maksed_mean
 
 
@@ -82,9 +84,7 @@ class SequenceLoss(nn.Module):
         self._gamma = gamma
         self._mean_mode = mean_mode
 
-    def forward(
-        self, inputs: list[Tensor], target: Tensor, valid: Tensor | None = None
-    ) -> Tensor:
+    def forward(self, inputs: list[Tensor], target: Tensor, valid: Tensor | None = None) -> Tensor:
         return sequence_loss(
             inputs=inputs,
             target=target,

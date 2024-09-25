@@ -16,7 +16,7 @@ def end_point_error(
     target: Tensor,
     valid: Tensor | None = None,
     p: int = 2,
-    npx: list[int] = [1, 3, 5],
+    npx: list[int] | None = None,
 ) -> dict[Tensor]:
     """compute end point error.
 
@@ -38,6 +38,9 @@ def end_point_error(
     epe = torch.norm(pred - target, p=p, dim=1)
     if valid is not None:
         epe[valid]
+
+    if npx is None:
+        npx = [1, 3, 5]
 
     metrics = {}
     metrics["epe"] = epe.mean().item()

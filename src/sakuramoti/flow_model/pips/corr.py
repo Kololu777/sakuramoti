@@ -32,9 +32,7 @@ class CorrBlock:
             _, _, _, h, w = corrs.shape
             dx = torch.linspace(-r, r, 2 * r + 1)
             dy = torch.linspace(-r, r, 2 * r + 1)
-            delta = torch.stack(torch.meshgrid(dx, dy, indexing="ij"), dim=-1).to(
-                coords.device
-            )
+            delta = torch.stack(torch.meshgrid(dx, dy, indexing="ij"), dim=-1).to(coords.device)
 
             centroid_lvl = coords.reshape(b * s * n, 1, 1, 2) / 2**i
             delta_lvl = delta.reshape(1, 2 * r + 1, 2 * r + 1, 2)
@@ -61,9 +59,7 @@ class CorrBlock:
         for fmaps in self.fmpas_pyramid:
             _, _, _, h, w = fmaps.shape
             fmap2s = fmaps.view(b, s, c, h * w)
-            corrs = torch.matmul(
-                fmap1, fmap2s
-            )  # <(B, T, N, C), (B, T, C, H*W)> -> (B, T, M, H*W)
+            corrs = torch.matmul(fmap1, fmap2s)  # <(B, T, N, C), (B, T, C, H*W)> -> (B, T, M, H*W)
             corrs = corrs.view(b, s, n, h, w)
             corrs = corrs / torch.sqrt(torch.tensor(c).float())
             self.corrs_pyramid.append(corrs)

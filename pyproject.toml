@@ -20,7 +20,8 @@ allow-direct-references = true
 packages = ["src/sakuramoti"]
 
 [tool.ruff]
-extend-include = ["*.ipynb"]
+# extend-include = ["*.ipynb", ".ipynb_checkpoints"]
+exclude = ["*.ipynb", ".ipynb_checkpoints"]
 target-version = "py312"
 line-length = 120
 indent-width = 4

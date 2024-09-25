@@ -54,6 +54,4 @@ def download_tapvid_benchmark(
 
 
 if __name__ == "__main__":
-    download_tapvid_benchmark(
-        "/mnt/wd_sn770_oss/imc2024_code/sakuramoti/data", is_download_davis=False
-    )
+    download_tapvid_benchmark("/mnt/wd_sn770_oss/imc2024_code/sakuramoti/data", is_download_davis=False)

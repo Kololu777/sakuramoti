@@ -55,7 +55,7 @@ from ...utils import load_state_dict_from_zip_url
 
 try:
     autocast = torch.cuda.amp.autocast
-except:
+except:  # noqa: E722
     # dummy autocast for PyTorch < 1.6
     class autocast:  # type: ignore [no-redef]
         def __init__(self, enabled):
@@ -99,16 +99,14 @@ class RAFT(nn.Module):
     __pth_template = "raft-{}.pth"
 
     def __init__(self, **conf_):
-        super(RAFT, self).__init__()
+        super().__init__()
         self.args = args = SimpleNamespace(**{**self.default_conf, **conf_})
         for k, v in self.arch[args.raft_model].items():
             setattr(args, k, v)
 
         # feature network, context network, and update block
         if args.raft_model == "small":
-            self.fnet = SmallEncoder(
-                output_dim=128, norm_fn="instance", dropout=args.dropout
-            )
+            self.fnet = SmallEncoder(output_dim=128, norm_fn="instance", dropout=args.dropout)
             self.cnet = SmallEncoder(
                 output_dim=args.hidden_dim + args.context_dim,
                 norm_fn="none",
@@ -117,17 +115,13 @@ class RAFT(nn.Module):
             self.update_block = SmallUpdateBlock(self.args, hidden_dim=args.hidden_dim)
 
         else:
-            self.fnet = BasicEncoder(
-                output_dim=256, norm_fn="instance", dropout=args.dropout
-            )
+            self.fnet = BasicEncoder(output_dim=256, norm_fn="instance", dropout=args.dropout)
             self.cnet = BasicEncoder(
                 output_dim=args.hidden_dim + args.context_dim,
                 norm_fn="batch",
                 dropout=args.dropout,
             )
-            self.update_block = BasicUpdateBlock(
-                self.args, hidden_dim=self.args.hidden_dim
-            )
+            self.update_block = BasicUpdateBlock(self.args, hidden_dim=self.args.hidden_dim)
 
         if self.args.pretrained is not None:
             state_dict = load_state_dict_from_zip_url(

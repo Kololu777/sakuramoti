@@ -64,26 +64,16 @@ class Pips(nn.Module):
         )
 
         if self.args.pretrained is not None:
-            state_dict = torch.hub.load_state_dict_from_url(
-                url=self.__url, file_name=self.__pth_template
-            )
+            state_dict = torch.hub.load_state_dict_from_url(url=self.__url, file_name=self.__pth_template)
             new_state_dict = {}
             for k, v in state_dict["model_state_dict"].items():
                 if k in [
                     "delta_block.to_delta.15.weight",
                     "delta_block.to_delta.15.bias",
                 ]:
-                    new_state_dict[
-                        k.replace(
-                            "delta_block.to_delta.15.", "delta_block.to_delta.head."
-                        )
-                    ] = v
+                    new_state_dict[k.replace("delta_block.to_delta.15.", "delta_block.to_delta.head.")] = v
                 elif "delta_block.to_delta" in k:
-                    new_state_dict[
-                        k.replace(
-                            "delta_block.to_delta.", "delta_block.to_delta.mlp_mixer."
-                        )
-                    ] = v
+                    new_state_dict[k.replace("delta_block.to_delta.", "delta_block.to_delta.mlp_mixer.")] = v
                 else:
                     new_state_dict[k] = v
             self.load_state_dict(state_dict=new_state_dict)
@@ -101,17 +91,13 @@ class Pips(nn.Module):
         _xys = xys.clone() / float(self.args.stride)  # Quantization
         if coord_init is None:
             # all pair
-            coords = _xys.reshape(b, 1, n, 2).repeat(
-                1, s, 1, 1
-            )  # B, N, 2 -> B, T, N, 2
+            coords = _xys.reshape(b, 1, n, 2).repeat(1, s, 1, 1)  # B, N, 2 -> B, T, N, 2
         else:
             coords = coord_init.clone() / float(self.args.stride)
 
         # Blue Tile
         if feat_init is None:
-            ffeats = bilinear_sample2d(fmaps[:, 0], coords[:, 0]).permute(
-                0, 2, 1
-            )  # B, N, C
+            ffeats = bilinear_sample2d(fmaps[:, 0], coords[:, 0]).permute(0, 2, 1)  # B, N, C
         else:
             ffeats = feat_init
         ffeats = ffeats.unsqueeze(1).repeat(1, s, 1, 1)  # (B, T, N, C)
@@ -136,13 +122,9 @@ class Pips(nn.Module):
         # (3.3) Initialize poistions
         # coords: Shape of B, T, N, 2.
         # ffeats: Shape of B, T, N, C.
-        coords, ffeats = self.init_pos_and_feat(
-            xys, fmaps, coord_init=coord_init, feat_init=feat_init
-        )
+        coords, ffeats = self.init_pos_and_feat(xys, fmaps, coord_init=coord_init, feat_init=feat_init)
 
-        fcorr_fn = CorrBlock(
-            fmaps=fmaps, num_levels=self.args.corr_levels, radius=self.args.corr_radius
-        )
+        fcorr_fn = CorrBlock(fmaps=fmaps, num_levels=self.args.corr_levels, radius=self.args.corr_radius)
 
         coord_predictions = []  # Quantization coordinate -> Input coordinate
         coord_predictions2 = [
@@ -161,19 +143,13 @@ class Pips(nn.Module):
 
             # Update positions and features
             # for mixer, i want everything in the format B*N, S, C
-            _ffeats: Tensor = ffeats.permute(0, 2, 1, 3).reshape(
-                b * n, s, self.args.latent_dim
-            )
+            _ffeats: Tensor = ffeats.permute(0, 2, 1, 3).reshape(b * n, s, self.args.latent_dim)
 
             _, _, _, lrr = fcorrs.shape
             _fcorrs = fcorrs.permute(0, 2, 1, 3).reshape(b * n, s, lrr)
 
             _flows = (coords - coords[:, 0:1]).permute(0, 2, 1, 3).reshape(b * n, s, 2)
-            _times = (
-                torch.linspace(0, s, s, device=_flows.device)
-                .reshape(1, s, 1)
-                .repeat(b * n, 1, 1)
-            )
+            _times = torch.linspace(0, s, s, device=_flows.device).reshape(1, s, 1).repeat(b * n, 1, 1)
             _flows = torch.cat([_flows, _times], dim=2)  # B*N, S, 3
             delta_all = self.delta_block(_ffeats, _fcorrs, _flows)  # 8*(128 +2)
 
@@ -190,22 +166,12 @@ class Pips(nn.Module):
             _ffeats = self.ffeat_updater(self.norm(_delta_feats)) + _ffeats
             ffeats = _ffeats.reshape(b, n, s, self.args.latent_dim).permute(0, 2, 1, 3)
 
-            coord_predictions.append(
-                coords * self.args.stride
-            )  # Quantization coordinate -> Input coordinate
-            coord_predictions2.append(
-                coords * self.args.stride
-            )  # Quantization coordinate -> Input coordinate
+            coord_predictions.append(coords * self.args.stride)  # Quantization coordinate -> Input coordinate
+            coord_predictions2.append(coords * self.args.stride)  # Quantization coordinate -> Input coordinate
 
-        vis_e = self.vis_predictor(
-            ffeats.reshape(b * s * n, self.args.latent_dim)
-        ).reshape(b, s, n)
+        vis_e = self.vis_predictor(ffeats.reshape(b * s * n, self.args.latent_dim)).reshape(b, s, n)
 
-        coord_predictions2.append(
-            coords * self.args.stride
-        )  # Quantization coordinate -> Input coordinate
-        coord_predictions2.append(
-            coords * self.args.stride
-        )  # Quantization coordinate -> Input coordinate
+        coord_predictions2.append(coords * self.args.stride)  # Quantization coordinate -> Input coordinate
+        coord_predictions2.append(coords * self.args.stride)  # Quantization coordinate -> Input coordinate
 
         return coord_predictions, coord_predictions2, vis_e

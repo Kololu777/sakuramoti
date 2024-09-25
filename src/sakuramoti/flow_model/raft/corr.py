@@ -37,9 +37,7 @@ import torch.nn.functional as F
 from torch import Tensor
 
 
-def bilinear_sampler(
-    img: Tensor, coords: Tensor, mode: str = "bilinear", is_mask: bool = False
-):
+def bilinear_sampler(img: Tensor, coords: Tensor, mode: str = "bilinear", is_mask: bool = False):
     """Wrapper for grid_sample, uses pixel coordinates"""
     H, W = img.shape[-2:]
     xgrid, ygrid = coords.split([1, 1], dim=-1)
@@ -57,9 +55,7 @@ def bilinear_sampler(
 
 
 class CorrBlock:
-    def __init__(
-        self, fmap1: Tensor, fmap2: Tensor, num_levels: int = 4, radius: int = 4
-    ):
+    def __init__(self, fmap1: Tensor, fmap2: Tensor, num_levels: int = 4, radius: int = 4):
         self.num_levels = num_levels
         self.radius = radius
         self.corr_pyramid = []

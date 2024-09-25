@@ -6,9 +6,7 @@ from ..raft.extractor import ResidualBlock
 
 
 class BasicEncoder(nn.Module):
-    def __init__(
-        self, input_dim=3, output_dim=128, stride=8, norm_fn="batch", dropout=0.0
-    ):
+    def __init__(self, input_dim=3, output_dim=128, stride=8, norm_fn="batch", dropout=0.0):
         super().__init__()
         self.stride = stride
         self.norm_fn = norm_fn
@@ -86,22 +84,14 @@ class BasicEncoder(nn.Module):
         b = self.layer2(a)
         c = self.layer3(b)
         d = self.layer4(c)
-        a = F.interpolate(
-            a, (H // self.stride, W // self.stride), mode="bilinear", align_corners=True
-        )
-        b = F.interpolate(
-            b, (H // self.stride, W // self.stride), mode="bilinear", align_corners=True
-        )
-        c = F.interpolate(
-            c, (H // self.stride, W // self.stride), mode="bilinear", align_corners=True
-        )
-        d = F.interpolate(
-            d, (H // self.stride, W // self.stride), mode="bilinear", align_corners=True
-        )
+        a = F.interpolate(a, (H // self.stride, W // self.stride), mode="bilinear", align_corners=True)
+        b = F.interpolate(b, (H // self.stride, W // self.stride), mode="bilinear", align_corners=True)
+        c = F.interpolate(c, (H // self.stride, W // self.stride), mode="bilinear", align_corners=True)
+        d = F.interpolate(d, (H // self.stride, W // self.stride), mode="bilinear", align_corners=True)
         x = self.conv2(torch.cat([a, b, c, d], dim=1))
         x = self.norm2(x)
         x = self.relu2(x)
-        x =self.conv3(x)
+        x = self.conv3(x)
 
         if self.training and self.dropout is not None:
             x = self.dropout(x)

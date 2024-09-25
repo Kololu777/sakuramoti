@@ -74,9 +74,7 @@ def bilinear_sample2d(feature_map: Tensor, coordinates: Tensor) -> Tensor:
     w_y1_x0 = ((x1_f - x) * (y - y0_f)).unsqueeze(2)
     w_y1_x1 = ((x - x0_f) * (y - y0_f)).unsqueeze(2)
 
-    output = (
-        w_y0_x0 * i_y0_x0 + w_y0_x1 * i_y0_x1 + w_y1_x0 * i_y1_x0 + w_y1_x1 * i_y1_x1
-    )
+    output = w_y0_x0 * i_y0_x0 + w_y0_x1 * i_y0_x1 + w_y1_x0 * i_y1_x0 + w_y1_x1 * i_y1_x1
     # output is B*N x C
     output = output.view(B, -1, C)
     output = output.permute(0, 2, 1)

@@ -11,13 +11,14 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any
+from collections.abc import Callable, Sequence
 
 import torch
-from torch.autograd import gradcheck
 from torch.testing import assert_close as _assert_close
+from torch.autograd import gradcheck
 
-Dtype = Union[torch.dtype, None]
+Dtype = torch.dtype | None
 Tensor = torch.Tensor
 
 # {dtype: (rtol, atol)}
@@ -31,12 +32,14 @@ _DTYPE_PRECISIONS = {
 
 
 def _default_tolerances(*inputs: Any) -> tuple[float, float]:
-    rtols, atols = zip(*[_DTYPE_PRECISIONS.get(torch.as_tensor(input_).dtype, (0.0, 0.0)) for input_ in inputs])
+    rtols, atols = zip(
+        *[_DTYPE_PRECISIONS.get(torch.as_tensor(input_).dtype, (0.0, 0.0)) for input_ in inputs], strict=False
+    )
     return max(rtols), max(atols)
 
 
 def assert_close(
-    actual: Tensor, expected: Tensor, *, rtol: Optional[float] = None, atol: Optional[float] = None, **kwargs: Any
+    actual: Tensor, expected: Tensor, *, rtol: float | None = None, atol: float | None = None, **kwargs: Any
 ) -> None:
     if rtol is None and atol is None:
         # `torch.testing.assert_close` used different default tolerances than `torch.testing.assert_allclose`.
@@ -58,9 +61,7 @@ def assert_close(
     )
 
 
-def tensor_to_gradcheck_var(
-    tensor: Tensor, dtype: Dtype = torch.float64, requires_grad: bool = True
-) -> Union[Tensor, str]:
+def tensor_to_gradcheck_var(tensor: Tensor, dtype: Dtype = torch.float64, requires_grad: bool = True) -> Tensor | str:
     """Convert the input tensor to a valid variable to check the gradient.
 
     `gradcheck` needs 64-bit floating point and requires gradient.
@@ -80,8 +81,8 @@ class BaseTester:
     def assert_close(
         actual: Tensor | float,
         expected: Tensor | float,
-        rtol: Optional[float] = None,
-        atol: Optional[float] = None,
+        rtol: float | None = None,
+        atol: float | None = None,
         low_tolerance: bool = False,
     ) -> None:
         """Asserts that `actual` and `expected` are close.
@@ -118,8 +119,8 @@ class BaseTester:
 
     @staticmethod
     def gradcheck(
-        func: Callable[..., Union[torch.Tensor, Sequence[torch.Tensor]]],
-        inputs: Union[torch.Tensor, Sequence[Any]],
+        func: Callable[..., torch.Tensor | Sequence[torch.Tensor]],
+        inputs: torch.Tensor | Sequence[Any],
         *,
         raise_exception: bool = True,
         fast_mode: bool = True,
@@ -143,12 +144,12 @@ class BaseTester:
         elif isinstance(inputs, dict):
             inputs = {
                 k: tensor_to_gradcheck_var(v, d, r) if isinstance(v, torch.Tensor) else v
-                for (k, v), d, r in zip(inputs.items(), dtypes, requires_grad)
+                for (k, v), d, r in zip(inputs.items(), dtypes, requires_grad, strict=False)
             }
         else:
             inputs = [
                 tensor_to_gradcheck_var(i, d, r) if isinstance(i, torch.Tensor) else i
-                for i, r, d in zip(inputs, requires_grad, dtypes)
+                for i, r, d in zip(inputs, requires_grad, dtypes, strict=False)
             ]
 
         return gradcheck(func, inputs, raise_exception=raise_exception, fast_mode=fast_mode, **kwargs)

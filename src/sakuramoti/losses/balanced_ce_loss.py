@@ -36,12 +36,8 @@ def balanced_cross_entropy_loss_with_logits(
     pos_term = -log_probs_pos * target
     neg_term = -log_probs_neg * (1.0 - target)
 
-    pos_loss = maksed_mean(
-        loss=pos_term, valid=pos_valid, mean_mode="reduce_masked_mean"
-    )
-    neg_loss = maksed_mean(
-        loss=neg_term, valid=neg_valid, mean_mode="reduce_masked_mean"
-    )
+    pos_loss = maksed_mean(loss=pos_term, valid=pos_valid, mean_mode="reduce_masked_mean")
+    neg_loss = maksed_mean(loss=neg_term, valid=neg_valid, mean_mode="reduce_masked_mean")
     return pos_loss + neg_loss
 
 
@@ -56,6 +52,4 @@ class BalancedCrossEntropy(nn.Module):
         self._min_th = min_th
 
     def forward(self, input: Tensor, target: Tensor, valid: Tensor | None = None):
-        return balanced_cross_entropy_loss_with_logits(
-            input, target, valid, max_th=self._max_th, min_th=self._min_th
-        )
+        return balanced_cross_entropy_loss_with_logits(input, target, valid, max_th=self._max_th, min_th=self._min_th)

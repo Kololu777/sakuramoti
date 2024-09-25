@@ -40,14 +40,10 @@ from torch import Tensor
 
 
 class ResidualBlock(nn.Module):
-    def __init__(
-        self, in_planes: int, planes: int, norm_fn: str = "group", stride: int = 1
-    ):
+    def __init__(self, in_planes: int, planes: int, norm_fn: str = "group", stride: int = 1):
         super().__init__()
 
-        self.conv1 = nn.Conv2d(
-            in_planes, planes, kernel_size=3, padding=1, stride=stride
-        )
+        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3, padding=1, stride=stride)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, padding=1)
         self.relu = nn.ReLU(inplace=True)
 
@@ -78,9 +74,7 @@ class ResidualBlock(nn.Module):
             self.downsample = None
 
         else:
-            self.downsample = nn.Sequential(
-                nn.Conv2d(in_planes, planes, kernel_size=1, stride=stride), self.norm3
-            )
+            self.downsample = nn.Sequential(nn.Conv2d(in_planes, planes, kernel_size=1, stride=stride), self.norm3)
 
     def forward(self, x: Tensor) -> Tensor:
         y = x
@@ -94,15 +88,11 @@ class ResidualBlock(nn.Module):
 
 
 class BottleneckBlock(nn.Module):
-    def __init__(
-        self, in_planes: int, planes: int, norm_fn: str = "group", stride: int = 1
-    ):
+    def __init__(self, in_planes: int, planes: int, norm_fn: str = "group", stride: int = 1):
         super().__init__()
 
         self.conv1 = nn.Conv2d(in_planes, planes // 4, kernel_size=1, padding=0)
-        self.conv2 = nn.Conv2d(
-            planes // 4, planes // 4, kernel_size=3, padding=1, stride=stride
-        )
+        self.conv2 = nn.Conv2d(planes // 4, planes // 4, kernel_size=3, padding=1, stride=stride)
         self.conv3 = nn.Conv2d(planes // 4, planes, kernel_size=1, padding=0)
         self.relu = nn.ReLU(inplace=True)
 
@@ -138,9 +128,7 @@ class BottleneckBlock(nn.Module):
             self.downsample = None
 
         else:
-            self.downsample = nn.Sequential(
-                nn.Conv2d(in_planes, planes, kernel_size=1, stride=stride), self.norm4
-            )
+            self.downsample = nn.Sequential(nn.Conv2d(in_planes, planes, kernel_size=1, stride=stride), self.norm4)
 
     def forward(self, x: Tensor) -> Tensor:
         y = x
@@ -155,9 +143,7 @@ class BottleneckBlock(nn.Module):
 
 
 class BasicEncoder(nn.Module):
-    def __init__(
-        self, output_dim: int = 128, norm_fn: str = "batch", dropout: float = 0.0
-    ):
+    def __init__(self, output_dim: int = 128, norm_fn: str = "batch", dropout: float = 0.0):
         super().__init__()
         self.norm_fn = norm_fn
 
@@ -203,9 +189,7 @@ class BasicEncoder(nn.Module):
         self.in_planes = dim
         return nn.Sequential(*layers)
 
-    def forward(
-        self, xs: tuple[Tensor, ...] | list[Tensor] | Tensor
-    ) -> tuple[Tensor, ...] | Tensor:
+    def forward(self, xs: tuple[Tensor, ...] | list[Tensor] | Tensor) -> tuple[Tensor, ...] | Tensor:
         # if input is list, combine batch dimension
         if isinstance(xs, tuple) or isinstance(xs, list):
             batch_dim = xs[0].shape[0]
@@ -235,9 +219,7 @@ class BasicEncoder(nn.Module):
 
 
 class SmallEncoder(nn.Module):
-    def __init__(
-        self, output_dim: int = 128, norm_fn: str = "batch", dropout: float = 0.0
-    ):
+    def __init__(self, output_dim: int = 128, norm_fn: str = "batch", dropout: float = 0.0):
         super().__init__()
         self.norm_fn = norm_fn
 
@@ -282,9 +264,7 @@ class SmallEncoder(nn.Module):
         self.in_planes = dim
         return nn.Sequential(*layers)
 
-    def forward(
-        self, xs: Tensor | tuple[Tensor, ...] | list[Tensor]
-    ) -> tuple[Tensor, ...] | Tensor:
+    def forward(self, xs: Tensor | tuple[Tensor, ...] | list[Tensor]) -> tuple[Tensor, ...] | Tensor:
         # if input is list, combine batch dimension
         if isinstance(xs, tuple) or isinstance(xs, list):
             batch_dim = xs[0].shape[0]

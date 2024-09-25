@@ -72,9 +72,7 @@ def get_3d_embedding(xyz, c, cat_coords=True):
     x = xyz[:, :, 0:1]
     y = xyz[:, :, 1:2]
     z = xyz[:, :, 2:3]
-    div_term = (
-        torch.arange(0, c, 2, device=xyz.device, dtype=torch.float32) * (1000.0 / c)
-    ).reshape(1, 1, int(c / 2))
+    div_term = (torch.arange(0, c, 2, device=xyz.device, dtype=torch.float32) * (1000.0 / c)).reshape(1, 1, int(c / 2))
 
     pe_x = torch.zeros(b, n, c, device=xyz.device, dtype=torch.float32)
     pe_y = torch.zeros(b, n, c, device=xyz.device, dtype=torch.float32)
@@ -112,9 +110,7 @@ class DeltaBlock(nn.Module):
         # Features: self.input_dim
         # Positional Encoding: 64 * 3
         # Flows(2) and Times(1): 3
-        kitchen_dim = (
-            (corr_levels * (2 * corr_radius + 1) ** 2) + self.input_dim + 64 * 3 + 3
-        )
+        kitchen_dim = (corr_levels * (2 * corr_radius + 1) ** 2) + self.input_dim + 64 * 3 + 3
 
         self.to_delta = MLPMixer(
             s=self.s,

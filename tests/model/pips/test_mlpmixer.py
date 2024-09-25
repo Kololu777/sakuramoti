@@ -1,6 +1,5 @@
 import torch
 import pytest
-
 from sakuramoti.flow_model.pips.mlp_mixer import MLPMixer, DeltaBlock
 
 

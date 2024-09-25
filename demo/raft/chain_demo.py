@@ -4,7 +4,6 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-
 from sakuramoti.io import load_image
 from sakuramoti.transformation import InputPadder
 from sakuramoti.flow_model.raft import RAFT

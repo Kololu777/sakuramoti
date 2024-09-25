@@ -1,6 +1,5 @@
 import torch
 import pytest
-
 from sakuramoti.flow_model.raft import RAFT
 
 device = "cuda"

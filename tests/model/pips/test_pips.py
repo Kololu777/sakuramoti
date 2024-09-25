@@ -1,5 +1,4 @@
 import torch
-
 from sakuramoti.flow_model.pips.pips import Pips
 
 

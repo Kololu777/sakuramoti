@@ -7,19 +7,20 @@ import numpy as np
 from sakuramoti.io import load_image
 from sakuramoti.transformation import InputPadder
 from sakuramoti.flow_model.raft import RAFT
-from sakuramoti.visualizer.flow_vis import flow_to_image
+from sakuramoti.visualizer.optical_flow import flow_to_image
 
 
 def viz(img, flo):
     img = 0.5 * 255.0 * (1 + img)
-    img = img[0].permute(1, 2, 0).cpu().numpy()
-    flo = flo[0].permute(1, 2, 0).cpu().numpy()
+    flo = flow_to_image(flo[0])
 
-    # map flow to rgb image
-    flo = flow_to_image(flo)
+    img = img[0].permute(1, 2, 0).cpu().numpy()
+    flo = flo.permute(1, 2, 0).cpu().numpy()
+
     img_flo = np.concatenate([img, flo], axis=0)
 
-    cv2.imshow("image", img_flo[:, :, [2, 1, 0]] / 255.0)
+    img_flo = cv2.cvtColor(img_flo, cv2.COLOR_BGR2RGB) / 255.0
+    cv2.imshow("image", img_flo)
     cv2.waitKey()
 
 

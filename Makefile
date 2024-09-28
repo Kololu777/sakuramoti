@@ -1,4 +1,4 @@
-.PHONY: lint
+.PHONY: lint format package-dev
 
 lint:
 	ruff check src tests demo
@@ -7,3 +7,6 @@ lint:
 format:
 	ruff check src tests demo --fix
 	ruff format src tests demo
+
+package-dev:
+	uv add --editable .

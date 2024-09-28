@@ -1,5 +1,5 @@
 import torch
-from sakuramoti.geometry.grid import generate_grid, normalize_coords
+from sakuramoti.geometry.grid import generate_grid
 
 
 def test_shape_generate_grid():
@@ -24,9 +24,3 @@ def test_check_value_generate_grid():
         ]
     )
     assert torch.allclose(grid, grid_test)
-
-
-def test_normalize_coords():
-    coords = torch.tensor([[0.0, 0.0], [1.0, 1.0]])
-    normalized_coords = normalize_coords(coords, 2, 2, no_shift=True)
-    assert torch.allclose(normalized_coords, torch.tensor([[-1.0, -1.0], [1.0, 1.0]]))

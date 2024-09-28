@@ -8,6 +8,7 @@ dependencies = [
     "torch>=2.4.0",
     "numpy>=1.26.4",
     "sakuramoti",
+    "imageio>=2.35.1",
 ]
 
 [build-systzzem]

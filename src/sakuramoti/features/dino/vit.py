@@ -316,20 +316,6 @@ class VisionTransformer(nn.Module):
         return output
 
 
-def vit_tiny(patch_size=16, **kwargs):
-    model = VisionTransformer(
-        patch_size=patch_size,
-        embed_dim=192,
-        depth=12,
-        num_heads=3,
-        mlp_ratio=4,
-        qkv_bias=True,
-        norm_layer=partial(nn.LayerNorm, eps=1e-6),
-        **kwargs,
-    )
-    return model
-
-
 def vit_small(patch_size=16, **kwargs):
     model = VisionTransformer(
         patch_size=patch_size,
@@ -355,4 +341,27 @@ def vit_base(patch_size=16, **kwargs):
         norm_layer=partial(nn.LayerNorm, eps=1e-6),
         **kwargs,
     )
+    return model
+
+
+def load_dino_model(model_name: str, patch_size: int = 16) -> VisionTransformer:
+    """
+    Note: Backbone only.
+    """
+    assert patch_size == 8 or patch_size == 16, "Value of `patch_size` must be 8 or 16."
+    _small_url = f"https://dl.fbaipublicfiles.com/dino/dino_deitsmall{patch_size}_pretrain/dino_deitsmall{patch_size}_pretrain.pth"
+    _base_url = (
+        f"https://dl.fbaipublicfiles.com/dino/dino_vitbase{patch_size}_pretrain/dino_vitbase{patch_size}_pretrain.pth"
+    )
+
+    if model_name == "vit_small":
+        model = vit_small(patch_size=patch_size)
+        state_dict = torch.hub.load_state_dict_from_url(url=_small_url, file_name="vit_small_pretrain.pth")
+        model.load_state_dict(state_dict)
+    elif model_name == "vit_base":
+        model = vit_base(patch_size=patch_size)
+        state_dict = torch.hub.load_state_dict_from_url(url=_base_url, file_name="vit_base_pretrain.pth")
+        model.load_state_dict(state_dict)
+    else:
+        raise ValueError(f"Invalid model name: {model_name}")
     return model

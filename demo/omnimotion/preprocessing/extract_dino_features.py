@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import torch
 from tqdm import tqdm
-from sakuramoti.features.dino.vit import VisionTransformer, load_dino_model
+from sakuramoti.features.dino.vision_transformer import VisionTransformer, load_dino_model
 
 
 def extract_feature(model: VisionTransformer, frame: torch.Tensor) -> tuple[torch.Tensor, int, int]:

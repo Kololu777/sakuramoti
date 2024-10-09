@@ -8,8 +8,6 @@ import torch
 from tqdm import tqdm
 from sakuramoti.features.dino.vit import VisionTransformer, load_dino_model
 
-# from sakuramoti.features.dinov2.vision_transformer import vit_base
-
 
 def extract_feature(model: VisionTransformer, frame: torch.Tensor) -> tuple[torch.Tensor, int, int]:
     """Extract one frame feature everytime.

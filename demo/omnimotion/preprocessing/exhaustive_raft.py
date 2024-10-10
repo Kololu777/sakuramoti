@@ -1,5 +1,4 @@
 import os
-import re
 from pathlib import Path
 
 import numpy as np
@@ -8,16 +7,17 @@ from sakuramoti.transformation import InputPadder
 from sakuramoti.flow_model.raft.raft import RAFT
 
 
-def run_exhaustive_flow(video_frame_path: str, save_data_dir: str, model_conf: dict):
-    flow_out_dir = os.path.join(save_data_dir, "raft_exhaustive")
+def run_exhaustive_flow(video_frame_path: str, model_conf: dict):
+    flow_out_dir = os.path.join(video_frame_path, "raft_exhaustive")
     os.makedirs(flow_out_dir, exist_ok=True)
 
     device = "cuda"
     model = RAFT(**model_conf).to(device=device).eval()
 
-    pattern = re.compile(r".*\.(png|jpg)$", re.IGNORECASE)
-    images = [str(file) for file in Path(video_frame_path).iterdir() if pattern.match(str(file))]
-    images = sorted(images)
+    # pattern = re.compile(r".*\.(png|jpg)$", re.IGNORECASE)
+    # images = [str(file) for file in Path(video_frame_path).iterdir() if pattern.match(str(file))]
+    # images = sorted(images)
+    images = sorted((Path(video_frame_path) / "color").glob("*.png"))
 
     num_imgs = len(images)
 
@@ -33,7 +33,8 @@ def run_exhaustive_flow(video_frame_path: str, save_data_dir: str, model_conf: d
         flow_low, flow_up = model.pred(image1, image2, iters=20, flow_init=flow_low_prev)
         flow_up = padder.unpad(flow_up)
         flow_up_np = flow_up.squeeze().permute(1, 2, 0).cpu().numpy()
-        save_file = os.path.join(flow_out_dir, f"{os.path.basename(imfile1)}_{os.path.basename(imfile2)}.npy")
+
+        save_file = os.path.join(flow_out_dir, f"{imfile1.stem}_{imfile2.stem}.npy")
         np.save(save_file, flow_up_np)
         flow_low_prev = flow_low
         return flow_low_prev
@@ -54,7 +55,6 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--video_frame_path", type=str, default="", help="video frame path")
-    parser.add_argument("--save_data_dir", type=str, default="", help="save data dir")
     parser.add_argument("--model", type=str, default="base", help="model size")
     parser.add_argument("--pretrained", type=str, default="things", help="pretrained model")
     parser.add_argument("--mixed_precision", action="store_true", help="use mixed precision")
@@ -62,4 +62,4 @@ if __name__ == "__main__":
 
     model_conf = {"raft_model": args.model, "pretrained": args.pretrained, "mixed_precision": args.mixed_precision}
 
-    run_exhaustive_flow(args.video_frame_path, args.save_data_dir, model_conf)
+    run_exhaustive_flow(args.video_frame_path, model_conf)

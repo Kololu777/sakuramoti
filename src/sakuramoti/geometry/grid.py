@@ -24,9 +24,16 @@ def normalize_coords(coords: Tensor, h: int, w: int, no_shift: bool = False) -> 
     Normalize coordinates to be in the range of [-1, 1].
     coords: Shape of (w, h, 2). values are in the range of [0, w-1] or [0, h-1].
 
+    Args:
+        coords: Shape of (W, H, 2). 2D coordinate.
+        h: height of image size.
+        w: width of image size.
+        no_shift: if True, do not shift the coordinate to [0, 2], False, shift to [-1, 1].
     """
     assert coords.shape[-1] == 2
     if no_shift:
-        return coords / torch.tensor([w - 1.0, h - 1.0], device=coords.device) * 2
+        return coords / torch.tensor([w, h], device=coords.device) * 2  # May be wrong. Should be remove *2.
+        # return coords / torch.tensor([w - 1.0, h - 1.0], device=coords.device) * 2
     else:
-        return coords / torch.tensor([w - 1.0, h - 1.0], device=coords.device) * 2 - 1.0
+        return coords / torch.tensor([w, h], device=coords.device) * 2 - 1.0
+        # return coords / torch.tensor([w - 1.0, h - 1.0], device=coords.device) * 2 - 1.0

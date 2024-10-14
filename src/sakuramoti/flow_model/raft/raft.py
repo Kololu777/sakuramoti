@@ -51,7 +51,8 @@ from sakuramoti.flow_model.raft.update import (
 from sakuramoti.flow_model.raft.extractor import BasicEncoder, SmallEncoder
 
 try:
-    autocast = torch.cuda.amp.autocast
+    # autocast = torch.cuda.amp.autocast()
+    autocast = torch.amp.autocast
 except:  # noqa: E722
     # dummy autocast for PyTorch < 1.6
     class autocast:  # type: ignore [no-redef]
@@ -130,6 +131,16 @@ class RAFT(nn.Module):
                 new_state_dict[k.replace("module.", "")] = v
             self.load_state_dict(state_dict=new_state_dict)
 
+    @property
+    def device_type(self) -> str:
+        device_type = str(next(self.parameters()).device)
+        if device_type.startswith("cuda"):
+            return "cuda"
+        elif device_type.startswith("cpu"):
+            return "cpu"
+        else:
+            raise ValueError(f"Unsupported device type: {device_type}")
+
     def freeze_bn(self) -> None:
         for m in self.modules():
             if isinstance(m, nn.BatchNorm2d):
@@ -172,7 +183,7 @@ class RAFT(nn.Module):
         cdim = self.args.context_dim
 
         # run the feature network
-        with autocast(enabled=self.args.mixed_precision):
+        with autocast(device_type=self.device_type, enabled=self.args.mixed_precision):
             fmap1, fmap2 = self.fnet([image1, image2])
 
         fmap1 = fmap1.float()
@@ -183,7 +194,7 @@ class RAFT(nn.Module):
             corr_fn = CorrBlock(fmap1, fmap2, radius=self.args.corr_radius)
 
         # run the context network
-        with autocast(enabled=self.args.mixed_precision):
+        with autocast(device_type=self.device_type, enabled=self.args.mixed_precision):
             cnet = self.cnet(image1)
             net, inp = torch.split(cnet, [hdim, cdim], dim=1)
             net = torch.tanh(net)
@@ -200,7 +211,7 @@ class RAFT(nn.Module):
             corr = corr_fn(coords1)  # index correlation volume
 
             flow = coords1 - coords0
-            with autocast(enabled=self.args.mixed_precision):
+            with autocast(device_type=self.device_type, enabled=self.args.mixed_precision):
                 net, up_mask, delta_flow = self.update_block(net, inp, corr, flow)
 
             # F(t+1) = F(t) + \Delta(t)
@@ -236,5 +247,5 @@ class RAFT(nn.Module):
         image2: Tensor,
         iters: int = 12,
         flow_init: int | None = None,
-    ) -> tuple(Tensor, Tensor):
+    ) -> tuple[Tensor, Tensor]:
         return self._run(image1, image2, iters, flow_init, test_mode=True)

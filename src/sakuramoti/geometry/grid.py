@@ -3,7 +3,7 @@ from torch import Tensor
 
 
 def generate_grid(
-    height: int, width: int, device: torch.device, normalize: bool = False, homogeneous: bool = True
+    height: int, width: int, device: torch.device, normalize: bool = False, homogeneous: bool = False
 ) -> Tensor:
     if normalize:
         lin_x = torch.linspace(-1, 1, steps=width, device=device)

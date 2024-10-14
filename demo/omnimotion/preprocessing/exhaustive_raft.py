@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--video_frame_path", type=str, default="", help="video frame path")
-    parser.add_argument("--model", type=str, default="base", help="model size")
+    parser.add_argument("--model", type=str, default="small", help="model size")
     parser.add_argument("--pretrained", type=str, default="things", help="pretrained model")
     parser.add_argument("--mixed_precision", action="store_true", help="use mixed precision")
     args = parser.parse_args()

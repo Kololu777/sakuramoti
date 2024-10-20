@@ -30,7 +30,7 @@ def normalize_coords(coords: Tensor, h: int, w: int, no_shift: bool = False) -> 
         w: width of image size.
         no_shift: if True, do not shift the coordinate to [0, 2], False, shift to [-1, 1].
     """
-    assert coords.shape[-1] == 2
+    assert coords.shape[-1] == 2, f"shape of coords must be (*, 2), but got {coords.shape}"
     if no_shift:
         return coords / torch.tensor([w, h], device=coords.device) * 2  # May be wrong. Should be remove *2.
         # return coords / torch.tensor([w - 1.0, h - 1.0], device=coords.device) * 2

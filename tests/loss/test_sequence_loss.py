@@ -1,7 +1,8 @@
 import torch
 import pytest
-from base import BaseTester
 from sakuramoti.losses.sequence_loss import SequenceLoss, sequence_loss
+
+from tests.base import BaseTester
 
 
 class TestSequenceLoss(BaseTester):

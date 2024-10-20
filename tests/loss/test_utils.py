@@ -1,7 +1,8 @@
 import torch
 import pytest
-from base import BaseTester
 from sakuramoti.losses.utils import maksed_mean
+
+from tests.base import BaseTester
 
 
 class TestMaskedMean(BaseTester):

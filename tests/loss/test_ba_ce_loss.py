@@ -1,8 +1,9 @@
 import torch
 import pytest
 import torch.nn as nn
-from base import BaseTester
 from sakuramoti.losses.balanced_ce_loss import BalancedCrossEntropy, balanced_cross_entropy_loss_with_logits
+
+from tests.base import BaseTester
 
 logsig_05 = -nn.functional.logsigmoid(torch.tensor(0.5))
 logsig_m05 = -nn.functional.logsigmoid(torch.tensor(-0.5))

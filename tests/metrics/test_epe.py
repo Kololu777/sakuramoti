@@ -1,7 +1,8 @@
 import torch
 import pytest
-from base import BaseTester
 from sakuramoti.metrics.end_point_error import end_point_error
+
+from tests.base import BaseTester
 
 
 class TestEPEMetrics(BaseTester):

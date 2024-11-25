@@ -1,0 +1,14 @@
+{
+    "name": "Python 3",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "ms-toolsai.jupyter"
+	],
+    "runArgs": ["--gpus=all","--shm-size=8gb"],
+	"postCreateCommand": "export PATH=\"$HOME/.local/bin:$PATH\" && bash ./tool/script/setup_uv.sh"
+}

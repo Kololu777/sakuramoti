@@ -32,9 +32,9 @@ def end_point_error(
     """
 
     if valid is not None:
-        assert (
-            pred.shape[0] == valid.shape[0] and pred.shape[2:] == valid.shape[1:]
-        ), f"Shape of `pred` and `valid` are not paired. Expected to shape of `pred`, `valid` is (B, T, ...), (B, ...) respectivly. but Get to shape of `pred`, `valid` is {pred.size()}, {valid.size()}."
+        assert pred.shape[0] == valid.shape[0] and pred.shape[2:] == valid.shape[1:], (
+            f"Shape of `pred` and `valid` are not paired. Expected to shape of `pred`, `valid` is (B, T, ...), (B, ...) respectivly. but Get to shape of `pred`, `valid` is {pred.size()}, {valid.size()}."
+        )
     epe = torch.norm(pred - target, p=p, dim=1)
     if valid is not None:
         epe[valid]
